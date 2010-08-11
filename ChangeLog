@@ -1,0 +1,19 @@
+(add new changes on top of this file)
+
+2010-08-10 Markus Stauffiger <markus@4eyes.ch>
+	* Added proper php-documents
+	* Added xclass-lines
+	* Removed scaffolding functions
+	* Started documenting typoscript
+
+2010-07-22 Alessandro Bellafronte <alessandro@4eyes.ch>
+	* Replaced singleView rendering with getFieldContent by rendering with getBoxedFieldContent, to avoid to render empty subparts... (Search for alessandro@4eyes.ch in the code for more information...)
+
+2010-07-08 Manuel Kammermann <manuel@4eyes.ch>
+	
+	* added switch to trigger $this->wrapInBaseClass()
+	* plugin.tx_pluginname_piX.noWrapInBaseClass = 1 skips wrapping 
+
+2005-09-16 Markus Stauffiger  <markus@4eyes.ch>
+
+	* Initial release

@@ -1,0 +1,206 @@
+/**
+	 * Function generate search scaffold
+	 */
+	function generateSearchScaffold() {
+		global $TCA;
+		$out = '<!-- ###searchBox### begin -->
+				<form action="###formAction###" method="post">
+					<p><input type="hidden" name="no_cache" value="1" />
+					<input type="hidden" name="###prefixId###[pointer]" value="" />
+					<label for="sword">Stichwortsuche</label><input id="sword" type="text" name="###prefixId###[sword]" value="###searchWord###" />';
+		foreach($TCA[$this->tableName]['columns'] as $key => $col) {
+			if(isset($col['config']['foreign_table'])) {
+				$out .= "<p><label>".$key."</label><select name=\"###prefixId###[".$key."]\">###search".$key."###</select></p>\n";
+			}
+		}
+		$out .= '<input type="submit" value="###submit###" /></p>
+				</form>
+				<!-- ###searchBox### end -->';
+		echo $out;
+	}
+	
+	
+	
+
+
+	/**
+	 * Generates a generic template for the detail view
+	 *
+	 * @return	String
+	 */
+	function generateDetailScaffold() {
+		if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
+		global $TCA;
+		$out = '<!-- ###singleView### begin-->
+					###content###
+					<!-- ###linkBox### -->
+					<p class="backlink"><a href="###backLink###">&lt;&lt; zur�ck zur �bersicht</a></p>
+					<!-- ###linkBox### -->
+				<!-- ###singleView### end-->
+				';
+		if (isset($TCA[$this->tableName]['ctrl']['type'])) {
+			$types = $TCA[$this->tableName]['types'];
+			foreach($types as $k=>$v) {
+				$out .= $this->generateTypeScaffold($k);
+			}
+			$out .= implode("\n\n",$this->mmTemplates);
+		} else {
+			$k = 0;
+			$mArr['###content###'] = $this->generateFieldScaffolds(array(),1);
+			$out = $this->cObj->substituteMarkerArray($out,$mArr);
+		}
+
+		if ($this->piVars['scaffold_mode']=='writeFile') {
+			// old school method.. use file_put_contents if php 5 available
+			$fp = fopen('typo3conf/ext/'.$this->extKey.'/templates/detail.html','w');
+			fwrite($fp,$out);
+			fclose($fp);
+		} else {
+			echo $out;
+		}
+		return 'Scaffold generated';
+	}
+
+	/**
+	 * Generates boxed-detail of a list of given fields
+	 *
+	 * @param 	array		$fields		Array of fields to render
+	 * @param 	integer		$tabs		Number of indention tabs
+	 * @return  string					HTML Template
+	 */
+	function generateFormFieldScaffolds($fields=array(),$tabs=0) {
+		global $TCA;
+		t3lib_div::loadTCA($this->tableName);
+		if (count($fields)==0) {
+			$fields = array_keys($TCA[$this->tableName]['columns']);
+		}
+		$out = '';
+		$basePath = t3lib_extMgm::extPath($this->extKey).'locallang_db.xml';
+				// php or xml as source: In any case the charset will be that of the system language.
+				// However, this function guarantees only return output for default language plus the specified language (which is different from how 3.7.0 dealt with it)
+		$this->LOCAL_LANG = t3lib_div::readLLfile($basePath,$this->LLkey);
+
+		foreach($this->LOCAL_LANG['default'] as $key => $value) {
+			if (!isset($this->LOCAL_LANG['de'][$key])) {
+				$this->LOCAL_LANG['de'][$key] = $value;
+			}
+		}
+		$indention = '';
+		for($i=0;$i<$tabs;$i++) {
+			$indention .= "\t";
+		}
+		foreach($fields as $f) {
+			if ($f != 'hidden') {
+				$out .= $indention."\n".$indention."\t<p class=\"".$f."\">\n".$indention."<label for=\"".$this->extKey."_".$f."\">".$this->pi_getLL($this->tableName.'.'.$f)."</label>\n".$indention;
+				switch ($TCA[$this->tableName]['columns'][$f]['config']['type']) {
+					case 'input':
+						$out .= $indention.'<input type="text" value="###'.$f.'###" name="'.$this->prefixId.'['.$f.']" id="'.$this->extKey."_".$f.'" />';
+					break;
+					case 'text':
+						$out .= $indention.'<textarea cols="50" rows="5" name="'.$this->prefixId.'['.$f.']" id="'.$this->extKey."_".$f.'">###'.$f.'###</textarea>';
+					break;
+					case 'select':
+						$out .= $indention.'<select name="'.$this->prefixId.'['.$f.']" id="'.$this->extKey."_".$f.'">###'.$f.'Options###</select>';
+					break;
+				}
+				$out .= "\n".$indention."</p>\n".$indention."\n";
+			}
+
+			if (isset($TCA[$this->tableName]['columns'][$f]['config']['MM'])) {
+				$this->setMMTemplates($f);
+			}
+		}
+		echo '<form action="###formAction###" id="'.$this->extKey.'_form" method="post">'.$out.'</form>';
+	}
+
+	/**
+	 * Generates boxed-detail template of
+	 *
+	 * @param 	string	$type	The type number
+	 * @return  string			HTML Template
+	 */
+	function generateTypeScaffold(&$type) {
+		global $TCA;
+		if ($TCA[$this->tableName]['types'][$type])	{
+			$itemList = $TCA[$this->tableName]['types'][$type]['showitem'];
+			if ($itemList)	{
+				$fields = t3lib_div::trimExplode(',',$itemList,1);
+				$getFields = array();
+				while(list(,$fieldInfo)=each($fields))	{
+					$parts = explode(';',$fieldInfo);
+					$theField = trim($parts[0]);
+					if ($TCA[$this->tableName]['columns'][$theField])	{
+						array_push($getFields,$theField);
+					}
+				}
+				return "<!-- ###type".$type."Box### begin -->\n".$this->generateFieldScaffolds($getFields,1)."<!-- ###type".$type."Box### end -->\n\n\n";
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Generates boxed-detail of a list of given fields
+	 *
+	 * @param 	array		$fields		Array of fields to render
+	 * @param 	integer		$tabs		Number of indention tabs
+	 * @return  string					HTML Template
+	 */
+	function generateFieldScaffolds($fields=array(),$tabs=0) {
+		global $TCA;
+		if (count($fields)==0) {
+			$fields = array_keys($TCA[$this->tableName]['columns']);
+		}
+		$out = '';
+		$indention = '';
+		for($i=0;$i<$tabs;$i++) {
+			$indention .= "\t";
+		}
+		foreach($fields as $f) {
+			if ($f != 'hidden') {
+				$out .= $indention."<!-- ###".$f."Box### begin -->\n".$indention."\t<p class=\"".$f."\">###".$f."###</p>\n".$indention."<!-- ###".$f."Box### end -->\n";
+			}
+			if (isset($TCA[$this->tableName]['columns'][$f]['config']['MM'])) {
+				$this->setMMTemplates($f);
+			}
+		}
+		return $out;
+	}
+	
+	
+
+	/**
+	 * Adds an additional template block with the related table
+	 *
+	 * @param	String	$column		Name of the mm column
+	 */
+	function setMMTemplates($column) {
+		if (!isset($this->mmTemplates[$column])) {
+			$this->mmTemplates[$column] = "<!-- ###".$column."RelationBox### begin -->
+						<!-- ###listView### -->
+							<!-- ###list### begin -->
+								<table>
+								<!-- ###rows### begin -->
+									<!-- ###row0### begin -->
+									<tr class=\"odd\">
+										<!-- ###cell### -->
+											<td ###class###>###content###</td>
+										<!-- ###cell### -->
+									</tr>
+									<!-- ###row0### end -->
+									<!-- ###row1### begin -->
+									<tr>
+										<!-- ###cell### -->
+											<td ###class###>###content###</td>
+										<!-- ###cell### -->
+									</tr>
+									<!-- ###row1### end -->
+								<!-- ###rows### end -->
+								</table>
+							<!-- ###list### end -->
+						<!-- ###listView### -->
+					<!-- ###".$column."RelationBox### end -->";
+		}
+
+
+	}

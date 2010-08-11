@@ -1,0 +1,30 @@
+#########################################
+# Here comes the x4epibase plugin setup
+#########################################
+
+plugin.tx_x4epibase_pi1 {
+	#main table name
+	tableName = {$x4epibase.tableName}
+	orderFieldList = label
+	# date format for all date fields
+	dateFormat = %d.%m.%y
+	# fields to display in list mode
+	field_orderList = itemdate, title, speaker
+	# sysfolder uid containing the records
+	pidList = {$x4epibase.pidList}
+
+	#settings for the list view
+	listView {
+		results_at_a_time = 999
+		template = typo3conf/ext/x4epibase/templates/list.html
+		# fields wrapped with detail link
+		detailLinkFields = label
+	}
+
+	#settings for the detail view
+	detailView {
+		template = typo3conf/ext/x4epibase/templates/detail.html
+		pdfPageUid =
+	}
+
+}

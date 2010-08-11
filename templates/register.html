@@ -1,0 +1,410 @@
+<!-- ###registerBox### -->
+
+<script language="Javascript">
+var firstPriorityCredits = -1;
+var secondPriorityCredits = -1;
+var validationDisabled = false;
+
+function disableValidation() {
+	validationDisabled = true;
+}
+
+	function validate(obj) {
+		if (!validationDisabled) {
+			if (firstPriorityCredits >= 0) {
+				var msg = "Bitte wählen Sie:\n";
+				var error = 0;
+				if (firstPriorityCredits != 2) {
+					msg += "- als erste Priorität einen langen oder zwei kurze Workshops.\n";
+					error = 1;
+				}
+				if (secondPriorityCredits != 2) {
+					msg += "- als zweite Priorität einen langen oder zwei kurze Workshops.\n";
+					error = 1;
+				}
+
+				if (error == 1) {
+					alert(msg);
+					return false;
+				} else {
+					return validateForm(obj,0,0,0,1,5);
+				}
+			} else {
+				return validateForm(obj,0,0,0,1,5);
+			}
+		} else {
+			disableValidation = false;
+		}
+	}
+</script>
+	###registerNavigation###
+	<form action="###formAction###" method="post" onsubmit="return validate(this);">
+	###registerForm###
+	###prev### ###next###
+	</form>
+
+<!-- ###registerBox### -->
+
+<!-- ###registerNavigationBox### -->
+<p>###navigationElements###</p>
+<!-- ###registerNavigationBox### -->
+
+<!-- ###nextButtonBox### -->
+<input class="submitButton" type="submit" name="###prefixId###[submit]" value="###nextButton###" />
+<!-- ###nextButtonBox### -->
+
+<!-- ###prevButtonBox### -->
+<input class="submitButton" onclick="disableValidation();" type="submit" name="###prefixId###[submit]" value="###prevButton###" />
+<!-- ###prevButtonBox### -->
+
+<!-- ###registrationType### -->
+<script language="JavaScript">
+function handleWorkshop(obj) {
+	if (!obj.checked) {
+		document.getElementById('workshop').value = '';
+		document.getElementById('workshop').alt = '';
+	} else {
+		document.getElementById('workshop').value = '';
+		document.getElementById('workshop').alt = 'blank';
+	}
+}
+
+function handleMenu(obj,menu) {
+	var menus = document.getElementById(menu).childNodes;
+		for(i=0;i<menus.length;i++) {
+			if (menus[i].type == 'radio') {
+				if (obj.checked) {
+					menus[i].alt = 'radio';
+				} else {
+					menus[i].checked = false;
+					menus[i].alt = '';
+				}
+			}
+		}
+
+}
+
+function activateMenuCheckbox(checkbox) {
+	document.getElementById(checkbox).checked = true;
+}
+
+function checkWorkshop(obj) {
+	if (obj.value != '') {
+		document.getElementById('referent').checked = 'checked';
+	}
+}
+
+
+
+</script>
+<p>Anmeldeschluss: 10. Februar 2007.</p><p>
+Wir empfehlen eine frühzeitige Anmeldung, da die Teilnehmerzahl auf 570 beschränkt ist und der letzte NATUR Kongress rasch ausgebucht war. Die Anmeldungen werden in der Reihenfolge ihres Eingangs berücksichtigt.
+</p>
+	<fieldset>
+		<legend>Anmeldung zum NATUR Kongress 2/07 am 9. März 2007</legend>
+		<p style="padding-bottom: 12px;">
+			<input value="anmeldung_normal" name="###prefixId###[form][anmelden]" id="anmeldung_normal" class="tue-check" type="radio" ###anmeldung_normalChecked### alt="radio" />
+			<label for="anmeldung_normal">###anmeldung_normalText###</label><br />
+			<input value="anmeldung_student" name="###prefixId###[form][anmelden]" id="anmeldung_student" class="tue-check" type="radio"  ###anmeldung_studentChecked### alt="radio" />
+			<label for="anmeldung_student" class="label-check">###anmeldung_studentText###</label><br />
+		</p>
+	</fieldset>
+	<fieldset>
+		<legend>Mittagessen</legend>
+		<p>
+			<input value="1" name="###prefixId###[form][mittagessen]" id="mittagessen" class="tue-check" type="checkbox" ###mittagessenChecked### onchange="handleMenu(this,'menu');" onclick="handleMenu(this,'menu');" />
+			<label for="mittagessen" class="label-check">Ich möchte gerne an der NATUR Messe für 15 CHF zu Mittag essen und wünsche folgendes Menu:</label>
+		</p>
+		<p style="padding-bottom: 12px; padding-left: 18px;" id="menu">
+			<input value="bratwurst" name="###prefixId###[form][menu]" id="bratwurst" class="tue-check" type="radio" ###bratwurstChecked### onclick="activateMenuCheckbox('mittagessen');" onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="bratwurst">###bratwurstText###</label><br />
+			<input value="burger" name="###prefixId###[form][menu]" id="burger" class="tue-check" type="radio"  ###burgerChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="burger" class="label-check">###burgerText###</label><br />
+			<input value="lasange" name="###prefixId###[form][menu]" id="lasange" class="tue-check" type="radio"  ###lasangeChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="lasange" class="label-check">###lasangeText###</label><br />
+			<input value="pizza_vegi" name="###prefixId###[form][menu]" id="pizza_vegi" class="tue-check" type="radio"  ###pizza_vegiChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="pizza_vegi" class="label-check">###pizza_vegiText###</label><br />
+			<input value="pizza_schinken" name="###prefixId###[form][menu]" id="pizza_schinken" class="tue-check" type="radio"  ###pizza_schinkenChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="pizza_schinken" class="label-check">###pizza_schinkenText###</label><br />
+			<input value="lunch_kaese" name="###prefixId###[form][menu]" id="lunch_kaese" class="tue-check" type="radio"  ###lunch_kaeseChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="lunch_kaese" class="label-check">###lunch_kaeseText###</label><br />
+			<input value="lunch_poulet" name="###prefixId###[form][menu]" id="lunch_poulet" class="tue-check" type="radio"  ###lunch_pouletChecked### onclick="activateMenuCheckbox('mittagessen');" onchange="activateMenuCheckbox('mittagessen');" />
+			<label for="lunch_poulet" class="label-check">###lunch_pouletText###</label><br />
+		</p>
+		<script language="Javascript">###mittagessenJS###</script>
+	</fieldset>
+	<fieldset>
+		<legend>Networking Dinner</legend>
+		<p>
+			<input value="1" name="###prefixId###[form][network]" id="network" class="tue-check" type="checkbox" ###referentChecked### onchange="handleMenu(this,'network_dinner');"  onclick="handleMenu(this,'network_dinner');"/>
+			<label for="network" class="label-check">Ich melde mich zusätzlich für das Networking Dinner an (90 CHF inkl. Getränke) und wünsche ein</label>
+		</p>
+		<p id="network_dinner" style="padding-left: 18px;">
+			<input value="networking_dinner_fleisch" name="###prefixId###[form][networking_dinner_essen]" id="networking_dinner_fleisch" onchange="activateMenuCheckbox('network');" class="tue-check" type="radio" ###networking_dinner_fleischChecked### onclick="activateMenuCheckbox('network');" />
+			<label for="networking_dinner_fleisch" class="label-check">###networking_dinner_fleischText###</label><br />
+			<input value="networking_dinner_vegi" name="###prefixId###[form][networking_dinner_essen]" id="networking_dinner_vegi" class="tue-check" type="radio" ###networking_dinner_vegiChecked### onchange="activateMenuCheckbox('network');" onclick="activateMenuCheckbox('network');" />
+			<label for="networking_dinner_vegi" class="label-check">###networking_dinner_vegiText###</label>
+		</p>
+	</fieldset>
+	<fieldset>
+		<legend>Referenten / Moderatoren</legend>
+		<p>
+			<input value="1" name="###prefixId###[form][referent]" id="referent" class="tue-check" type="checkbox" ###referentChecked### onchange="handleWorkshop(this);"/>
+			<label for="referent" class="label-check">Ich bin Referent/in oder Moderator/in in</label> <label for="workshop" class="label-check">folgendem Workshop</label> <input type="text" size="3" id="workshop" name="###prefixId###[form][workshop]" value="###workshop###" onchange="checkWorkshop(this)" /> und bitte Sie, meine Anmeldung und die Kosten dafür mit dem Workshopveranstalter zu koordinieren.</label>
+		</p>
+	</fieldset>
+</p>
+
+<!-- ###registrationType### -->
+
+<!-- ###category### -->
+<script language="Javascript">
+firstPriorityCredits = 0;
+secondPriorityCredits = 0;
+
+function addCredits(priority,credits,event,category) {
+	if (priority == 'first') {
+		enableRadios(document.getElementsByName('tx_x4eevent_pi1[form][selection]['+category+'][secondPriority]'));
+		document.getElementById("secondPriority_"+event).disabled = true;
+		uncheckCategoryRadios(credits,category,'first');
+		firstPriorityCredits += credits;
+	} else {
+		enableRadios(document.getElementsByName('tx_x4eevent_pi1[form][selection]['+category+'][firstPriority]'));
+		document.getElementById("firstPriority_"+event).disabled = true;
+		uncheckCategoryRadios(credits,category,'second');
+		secondPriorityCredits += credits;
+	}
+	checkCreditValidity();
+}
+
+
+
+
+function uncheckCategoryRadios(credits,category,priority) {
+	var opposite = 'second';
+	if (priority == 'second') {
+		opposite = 'first';
+	}
+	// uncheck the radios if long workshop is selected
+	if (category == 1) {
+		// uncheck radios in same priority
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection]['+(category+1)+']['+priority+'Priority]');
+		uncheckRadios(radios,1,priority);
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection]['+(category+2)+']['+priority+'Priority]');
+		uncheckRadios(radios,1,priority);
+
+		// enable radios in other priority
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection]['+(category+1)+']['+opposite+'Priority]');
+		enableRadios(radios);
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection]['+(category+2)+']['+opposite+'Priority]');
+		enableRadios(radios);
+	} else if((category == 2) || (category == 3)) {
+		// uncheck the long workshop radios if short workshop is selected
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection][1]['+priority+'Priority]');
+		uncheckRadios(radios,2,priority);
+
+		// enable radios in other priority
+		radios = document.getElementsByName('tx_x4eevent_pi1[form][selection][1]['+opposite+'Priority]');
+		enableRadios(radios);
+	}
+}
+
+function uncheckRadios(radios,credits,priority) {
+	for(i=0;i<radios.length;i++) {
+		if (radios[i].type == 'radio') {
+			// decrement credits
+			if (radios[i].checked) {
+				if (priority == 'first') {
+					if (firstPriorityCredits > 0) {
+						firstPriorityCredits = firstPriorityCredits - credits;
+					}
+				} else {
+					if (secondPriorityCredits > 0) {
+						secondPriorityCredits = secondPriorityCredits - credits;
+					}
+
+
+				}
+				checkCreditValidity();
+			}
+			radios[i].checked = false;
+		}
+	}
+}
+
+function checkCreditValidity() {
+	if (secondPriorityCredits < 0) {
+		secondPriorityCredits = 0;
+	}
+	if (secondPriorityCredits > 2) {
+		secondPriorityCredits = 2;
+	}
+	if (firstPriorityCredits < 0) {
+		firstPriorityCredits = 0;
+	}
+	if (firstPriorityCredits > 2) {
+		firstPriorityCredits = 2;
+	}
+}
+
+function enableRadios(radios) {
+	for(i=0;i<radios.length;i++) {
+		if (radios[i].type == 'radio') {
+			radios[i].disabled = false;
+		}
+	}
+}
+</script>
+<p>Bitte wählen Sie durch Ankreuzen des
+entsprechenden Kästchens <strong>einen langen Workshop oder zwei kurze Workshops</strong> aus
+und geben Sie jeweils eine zweite Priorität an. Bei Unterbelegung eines
+Workshops kann es sein, dass der entsprechende Workshop gestrichen oder mit
+einem thematisch verwandten Workshop zusammengelegt wird.</p>
+<fieldset>
+		<legend>Workshops</legend>
+  	<!-- ###listViewBox### -->
+		<!-- ###listView### -->
+		<h2>###categoryLabel###</h2>
+			<table border="0" cellpadding="0" cellspacing="0">
+
+			  <tr>
+			    <th>1.&nbsp;Priorität&nbsp;</th>
+			    <th>2.&nbsp;Priorität&nbsp;</th>
+			    <th>Workshop</th>
+			  </tr>
+				<!-- ###list### begin -->
+					<!-- ###rows### begin -->
+						<!-- ###row0### begin -->
+						<tr>
+		   					<td class="radio"><input name="###prefixId###[form][selection][###categoryUid###][firstPriority]" value="###uid###" id="firstPriority_###uid###" type="radio" class="tue-check" ###checked1### onclick="addCredits('first',###credits###,###uid###,###categoryUid###);" /></td>
+		    				<td class="radio"><input name="###prefixId###[form][selection][###categoryUid###][secondPriority]" value="###uid###" id="secondPriority_###uid###" type="radio" class="tue-check" ###checked2### onclick="addCredits('second',###credits###,###uid###,###categoryUid###);" /><script language="Javascript">###js###</script></td>
+							<!-- ###cell### -->
+								<td>###content###</td>
+							<!-- ###cell### -->
+						</tr>
+						<!-- ###row0### end -->
+						<!-- ###row1### begin -->
+						<tr>
+		   					<td class="radio"><input name="###prefixId###[form][selection][###categoryUid###][firstPriority]" value="###uid###" id="firstPriority_###uid###" type="radio" class="tue-check" ###checked1### onclick="addCredits('first',###credits###,###uid###,###categoryUid###);" /></td>
+		    				<td class="radio"><input name="###prefixId###[form][selection][###categoryUid###][secondPriority]" value="###uid###" id="secondPriority_###uid###" type="radio" class="tue-check" ###checked2### onclick="addCredits('second',###credits###,###uid###,###categoryUid###);" /><script language="Javascript">###js###</script></td>
+							<!-- ###cell### -->
+								<td>###content###</td>
+							<!-- ###cell### -->
+						</tr>
+						<!-- ###row1### end -->
+					<!-- ###rows### end -->
+				<!-- ###list### end -->
+
+				</table>
+		<!-- ###listView### -->
+	<!-- ###listViewBox### -->
+	</fieldset>
+<!-- ###category### -->
+
+<!-- ###particulars### -->
+<fieldset>
+<legend>Adresse</legend>
+<p>
+<label for="###prefixId###[form][anrede]">Anrede</label>
+<br />
+<select name="###prefixId###[form][anrede]" id="###prefixId###[form][anrede]" size="1"><option value="Bitte wählen...">Bitte wählen...</option><option value="Herr">Herr</option><option value="Frau">Frau</option></select>
+
+</p>
+<p>
+<label for="###prefixId###[form][name]">Name*</label>
+<br />
+<input name="###prefixId###[form][name]" id="###prefixId###[form][name]" size="34" value="###name###" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][vorname]">Vorname*</label>
+<br />
+<input name="###prefixId###[form][vorname]" id="###prefixId###[form][vorname]" size="34" value="###vorname###" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][firma_organisation]">Firma/Organisation</label>
+<br />
+
+<input name="###prefixId###[form][firma_organisation]" id="###prefixId###[form][firma_organisation]" size="34" value="###firma_organisation###" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][funktion]">Funktion</label>
+<br />
+<input name="###prefixId###[form][funktion]" id="###prefixId###[form][funktion]" size="34" value="###funktion###" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][adresse]">Adresse*<br />
+</label>
+<input name="###prefixId###[form][adresse]" id="###prefixId###[form][adresse]" size="34" value="###adresse###" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][plz]">PLZ*</label><br />
+
+<input name="###prefixId###[form][plz]" id="###prefixId###[form][plz]" value="###plz###" size="8" maxlength="7" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][ort]">Ort*</label><br />
+<input name="###prefixId###[form][ort]" id="###prefixId###[form][ort]" size="34" value="###ort###" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][land]">Land*</label><br />
+<input name="###prefixId###[form][land]" id="###prefixId###[form][land]" size="34" value="###land###" alt="blank" type="text" />
+</p>
+<p>
+<label for="###prefixId###[form][email]">E-Mail*</label><br />
+<input name="###prefixId###[form][email]" id="###prefixId###[form][email]" size="34" value="###email###" alt="email" type="text" />
+</p>
+
+<p>
+<label for="###prefixId###[form][telfax]">Telefon*</label><br />
+<input name="###prefixId###[form][telfax]" id="###prefixId###[form][telfax]" size="34" value="###telfax###" type="text" alt="blank" />
+</p>
+</fieldset>
+<fieldset>
+<legend>Bemerkungen</legend>
+<p>
+<textarea name="###prefixId###[form][bemerkungen]" id="###prefixId###[form][bemerkungen]" cols="34" rows="7" wrap="virtual">###bemerkungen###</textarea>
+</p>
+</fieldset>
+<p>* Zur Korrespondenz mit Ihnen und für Nachfragen bitten wir Sie, alle Felder auszufüllen. Ihre Daten werden vertraulich behandelt.</p>
+<!-- ###particulars### -->
+
+<!-- ###overview### -->
+<h2>Übersicht</h2>
+	<fieldset>
+	<legend>Anmeldung</legend>
+		###anmeldenText###<br/>
+		Essen: ###menuText###<br />
+		Networking Dinner: ###networking_dinner_essenText###<br/>
+		Referent/in: ###referentText### ###workshop###
+	</fieldset>
+	<fieldset>
+	<legend>Workshops</legend>
+	<!-- ###eventSelection### -->
+	<p>
+	<h3>###categoryLabel###</h3>
+	Priorität 1: ###firstPriority###<br />
+	Priorität 2: ###secondPriority###
+	</p>
+	<!-- ###eventSelection### -->
+	</fieldset>
+
+	<fieldset>
+	<legend>Kontaktinformation</legend>
+		###firma_organisation###<br/>
+		###vorname### ###name###<br/>
+		###adresse###<br/>
+		###plz### ###ort###<br/>
+		###land###<br/>
+		###email###<br/>
+		###telfax###<br/>
+		###bemerkungen###
+	</fieldset>
+<!-- ###overview### -->
+
+<!-- ###confirmation### -->
+<h2>Herzlichen Dank für Ihre Anmeldung.</h2>
+<p>Sie erhalten innerhalb von 14 Tagen eine Bestätigung und einen
+Einzahlungsschein. Die Einzahlung berechtigt Sie zum Bezug des
+Eintrittsbadges an der Teilnehmerregistrierung des NATUR Kongresses 2/07 am
+9. März 2007.</p>
+<!-- ###confirmation### -->
