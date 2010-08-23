@@ -1,5 +1,9 @@
 (add new changes on top of this file)
 
+2010-08-23 Markus Stauffiger <markus@4eyes.ch>
+    * Moved api to http://api.4eyes.ch/x4epibase
+    * Added manual.swx
+
 2010-08-10 Markus Stauffiger <markus@4eyes.ch>
 	* Added proper php-documents
 	* Added xclass-lines

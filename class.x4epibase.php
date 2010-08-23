@@ -862,7 +862,6 @@ class x4epibase extends tslib_pibase {
 		
 		// check if list mode
 		if ((!isset($this->piVars['showUid']) || ($this->conf['detailView.']['enableDetailLinks']==1)) && in_array($fN,$this->conf['listView.']['detailLinkFields'])) {
-			//$out = $this->pi_list_linkSingle($out,$this->internal['currentRow']['uid'],true,$p,false,$this->conf['listView.']['detailPageUid']);
 			$out = $this->pi_linkTP_keepPIvars($out,array('showUid'=>$this->internal['currentRow']['uid']),1,0,$this->conf['listView.']['detailPageUid']);
 		}
 
@@ -1374,7 +1373,7 @@ class x4epibase extends tslib_pibase {
     		$labelKey = $TCA[$tableName]['ctrl']['label'];
     	}
 		
-		if($labelAlias == ''){
+	if($labelAlias == ''){
     		$labelAlias = $labelKey;
     	}
 		

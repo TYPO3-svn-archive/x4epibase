@@ -3,28 +3,162 @@
 #########################################
 
 plugin.tx_x4epibase_pi1 {
+
+        #############
+        # Database related
+        #############
+
 	#main table name
 	tableName = {$x4epibase.tableName}
+
+        # fields to order by
 	orderFieldList = label
-	# date format for all date fields
-	dateFormat = %d.%m.%y
-	# fields to display in list mode
-	field_orderList = itemdate, title, speaker
-	# sysfolder uid containing the records
+
+        # order desc
+        orderDesc = 0
+
+        # fields to be search-able
+        searchFieldList =
+
+	# fields to display in list mode (overriden by flexform)
+	field_orderList = label
+
+        # sysfolder uid containing the records, (overriden by flexform)
 	pidList = {$x4epibase.pidList}
 
-	#settings for the list view
+        # list of fields (piVars) which are included in the where condition
+        whereFields =
+
+        # additional where condition to be added to the list view query
+        addtionalWhereCondition =
+
+        # enable frontend to add the edit-buttons
+        edit = 0
+
+        # mandatory fields for editing mode
+        mandatoryFields =
+
+        # include records which are marked as hidden
+        includeHiddenRecords = 0
+
+        #############
+        # Output related
+        #############
+
+        # disable base-class wrap (overriden by flexform)
+        noWrapInBaseClass = 0
+
+        # select display mode (overriden by flexform)
+        # values category, categoryMenu, listOfDetail, alphabeticalList
+        # empty = default = simple listView
+        modeSelection =
+
+        # configuration for rendering mm-relations, will be merged with regular configuration
+        mmRelatedConfig {
+            # example listView.results_at_a_time = 10
+            # example listView.template = some_other_template.html
+        }
+
+        #settings for the list view, may include other settings for the page browser as well
 	listView {
+                showResultCount = 0
+                # number of results to display at once
 		results_at_a_time = 999
+                # html-tempalte file containing the list view
 		template = typo3conf/ext/x4epibase/templates/list.html
+                # html-template file for listByCategory
+                categoryViewTemplate =
 		# fields wrapped with detail link
 		detailLinkFields = label
+                # page uid to use for the single view, uses current page if variable is not set
+                detailPageUid =
+                # dont display head-row
+                hideHeaderRow = 
+                # just combine record by seperator, values: 0 / 1
+                simpleList =
+                # Use this string to separate the rows in simpleList mode
+                simpleListSeparator =
 	}
+
+        # add specific classes to columns (list view)
+        columnClasses {
+            # example lastname = highlight
+        }
 
 	#settings for the detail view
 	detailView {
 		template = typo3conf/ext/x4epibase/templates/detail.html
 		pdfPageUid =
+                # add details links even though we are already in detail mode (0/1)
+                enableDetailLinks =
 	}
+        
+        # page uid containing list view (overriden by flexform)
+        listPageUid =
 
+        # render different record types (see TCA/ctrl/type) with the same template
+        ignoreTypeTemplate =
+
+        # adds the label field of the current record to the page title
+        addTitleToPageTitle = 
+
+        # configuration for the rendered file-links
+        filelink =
+
+        # fields to to which utf8_decode is applied, you may use all
+        utf8DecodeFields =
+
+        # Skip htmlentities on this fields
+        skipHtmlEntitiesFields =
+
+        # additional configuration for fields
+        fields {
+            # example for the post_stdWrap of the field "lastname"
+            # lastname.post_stdWrap =
+            # example for the stdWrap
+            # lastname.stdWrap =
+        }
+
+        # configuration for image fields, see tsref/image, file parameter is added by extension
+        imageConfig.pictures {
+        }
+
+        # date format for all date fields
+	dateFormat = %d.%m.%y
+
+        ########
+        #   Alphabetic list settings
+        ########
+        alphabeticalList {
+            # htmltempalte for the alpabetic list
+            template =
+            menu.items =
+        }
+
+        #######
+        # Category related
+        ########
+
+        # configuration for the category menu
+        categoryMenu {
+            # category menu template
+            template = 
+            # table with the categories (otherwise uses member variable)
+            catTable =
+            # Field to order the categories by (otherwise uses member variable)
+            orderCatBy =
+            # field which holds the category id (otherwise uses member variable)
+            catField =
+            # field in the category table to use as label (otherwise uses member variable)
+            catLabelField =
+            # pidList for the categories (otherwise uses categoryPidList or main pidList)
+            pidList =
+            # hide categories with no records
+            onlyShowNecessaryCats = 1
+            # link in the category points to this page (otherwise same page)
+            altPageUid =
+        }
+
+        # category pidList, overriden by categoryMenu.pidList and flexform-field categoryPidList
+        categoryPidList =
 }
