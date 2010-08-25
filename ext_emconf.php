@@ -12,16 +12,16 @@
 
 $EM_CONF[$_EXTKEY] = array(
 	'title' => '4eyes pibase',
-	'description' => 'template controled pibase functions',
+	'description' => 'template controlled pibase functions',
 	'category' => 'fe',
 	'shy' => 0,
 	'version' => '1.0.14',
-	'dependencies' => '',
+	'dependencies' => 'cms',
 	'conflicts' => '',
 	'priority' => '',
 	'loadOrder' => '',
 	'module' => '',
-	'state' => 'alpha',
+	'state' => 'stable',
 	'uploadfolder' => 0,
 	'createDirs' => '',
 	'modify_tables' => '',
@@ -29,11 +29,12 @@ $EM_CONF[$_EXTKEY] = array(
 	'lockType' => '',
 	'author' => 'Markus Stauffiger',
 	'author_email' => 'markus@4eyes.ch',
-	'author_company' => '',
+	'author_company' => '4eyes GmbH',
 	'CGLcompliance' => '',
 	'CGLcompliance_note' => '',
 	'constraints' => array(
 		'depends' => array(
+			'cms' => '',
 		),
 		'conflicts' => array(
 		),

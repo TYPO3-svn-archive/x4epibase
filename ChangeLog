@@ -1,4 +1,7 @@
 (add new changes on top of this file)
+2010-08-25 Michel Georgy <michel@4eyes.ch>
+	* Fixed spelling errors
+	* changed ext_icon
 
 2010-08-23 Markus Stauffiger <markus@4eyes.ch>
     * Moved api to http://api.4eyes.ch/x4epibase
