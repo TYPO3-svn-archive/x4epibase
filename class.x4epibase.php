@@ -1060,7 +1060,6 @@ class x4epibase extends tslib_pibase {
 	 * Displays single view of a record. It's possible to give a record,
 	 * otherwise, the function gets the one in the piVars['showUid']
 	 *
-	 * @param	array 	$element	Element to render
 	 * @return	string				HTML-View of record
 	 */
 	function singleView(){

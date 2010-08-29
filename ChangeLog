@@ -1,7 +1,8 @@
-(add new changes on top of this file)
+2010-08-29 Markus Stauffiger <markus-at-4eyes.ch>
+    * Updated some phpdoc comments
 
 2010-08-27 Markus Stauffiger <markus@4eyes.ch>
-	* Updateded documentation
+	* Updated documentation
 
 2010-08-25 Michel Georgy <michel@4eyes.ch>
 	* Fixed spelling errors
