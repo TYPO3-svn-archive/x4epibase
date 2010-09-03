@@ -1335,6 +1335,31 @@ class x4epibase extends tslib_pibase {
 		}
 	}
 
+	/** 
+	 * Clears cache of sites defined in page-ts-config
+	 *
+	 * @TODO: is this function still needed?
+	 * @param	integer	PageUid
+	 * @return	void
+	 */
+	function clearCacheCmd($pageUid) {
+		$page = $this->pi_getRecord('pages',$pageUid);
+		$lines = t3lib_div::trimExplode("\n",$page['TSconfig'],1);
+		foreach($lines as $l) {
+			$v = t3lib_div::trimExplode('=',$l,1);
+			if (isset($v[0]) && ($v[0] == 'TCEMAIN.clearCacheCmd')) {
+				if (isset($v[1]) && ($v[1]!= '')) {
+					require_once(PATH_t3lib.'class.t3lib_tcemain.php');
+					$pageIds = t3lib_div::trimExplode(',',$v[1],1);
+					foreach($pageIds as $p) {
+						t3lib_TCEmain::clear_cacheCmd($p);
+					}
+					return;
+				}
+			}
+		}
+	}
+
 	/**
 	 * Generates options for a country menu
 	 *
@@ -1451,6 +1476,19 @@ class x4epibase extends tslib_pibase {
 				</style>
 				';
     }
+    
+    /**
+    * Writes piVars into a marker array
+    * @return array marker-array
+    */
+    function getPiVarsIntoMarkerArray(){
+		$mArr = array();
+		foreach($this->piVars as $k=>$v) {
+			$mArr['###'.$k.'###'] = $v;
+		}
+		return $mArr;
+	}
+
 
 	/**
 	 * Adds validation javascript file, for front end editing features
@@ -1472,14 +1510,14 @@ class x4epibase extends tslib_pibase {
      * @param integer 	$size	filesize in bytes
      * @return string	filesize in appropriate unit
      */
-	function formatFilesize($size){
+	function formatFilesize($size, $precision=0){
 		  $i=0;
 		  $iec = array("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB");
 		  while (($size/1024)>1) {
 		   $size=$size/1024;
 		   $i++;
 		  }
-		  return round($size,1).' '.$iec[$i];
+		  return round($size,$precision).' '.$iec[$i];
 	}
 
     /**
