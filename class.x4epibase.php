@@ -835,7 +835,7 @@ class x4epibase extends tslib_pibase {
 			default:
 				switch($fN) {
 					case 'crdate':
-					case 'tsamp':
+					case 'tstamp':
 						if (intval($this->internal['currentRow'][$fN])) {
 							$out = strftime($this->conf['dateFormat'],$this->internal['currentRow'][$fN]);
 						} else {
