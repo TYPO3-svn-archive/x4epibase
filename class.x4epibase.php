@@ -1008,11 +1008,11 @@ class x4epibase extends tslib_pibase {
 	 * Notice that these two functions are typically ALWAYS defined in the extension class of the plugin since they are directly concerned with the specific layout for that plugins purpose.
 	 *
 	 * @param	pointer		Result pointer to a SQL result which can be traversed.
-	 * @param	string		Attributes for the table tag which is wrapped around the table rows containing the list
+	 * @param	array		Set of already fetched rows instead of a DB result pointer
 	 * @return	string		Output HTML, wrapped in <div>-tags with a class attribute
 	 * @see pi_list_row(), pi_list_header()
 	 */
-	function pi_list_makelist($res)	{
+	function pi_list_makelist($res, $rowSet = array())	{
 		// get all templates
 		if ($this->manualFieldOrder_list == ''){
 			$this->manualFieldOrder_list = $this->fields;
@@ -1037,13 +1037,25 @@ class x4epibase extends tslib_pibase {
 		$c=0;
 		$rows = '';
 		$simpleRows = array();
-		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			if ($this->conf['listView.']['simpleList']==1) {
-				$simpleRows[] = $this->pi_list_row($c);
-			} else {
-				$rows .= $this->pi_list_row($c);
+		if ($res !== NULL) {
+			while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				if ($this->conf['listView.']['simpleList']==1) {
+					$simpleRows[] = $this->pi_list_row($c);
+				} else {
+					$rows .= $this->pi_list_row($c);
+				}
+				$c++;
 			}
-			$c++;
+		} elseif (count($rowSet) > 0) {
+			foreach ($rowSet as $row) {
+				$this->internal['currentRow'] = $row;
+				if ($this->conf['listView.']['simpleList']==1) {
+					$simpleRows[] = $this->pi_list_row($c);
+				} else {
+					$rows .= $this->pi_list_row($c);
+				}
+				$c++;
+			}
 		}
 		// make a simple list
 		if ($this->conf['listView.']['simpleList']==1) {
@@ -1186,24 +1198,28 @@ class x4epibase extends tslib_pibase {
 	 * @return	string		Output HTML, wrapped in <div>-tags with a class attribute
 	 */
 	function pi_list_searchBox($tableParams='')	{
-			// Search box design:
-		$mArr['###formAction###'] = $this->pi_getPageLink($GLOBALS['TSFE']->id);
-		$mArr['###searchWord###'] = $this->piVars['sword'];
-		$mArr['###submit###'] = $this->pi_getLL('pi_list_searchBox_search','Search',TRUE);
-		$mArr['###extKey###'] = $this->prefixId;
-
-		$tmpl = $this->cObj->getSubpart($this->template,'###searchBox###');
-
-		global $TCA;
-		if (isset($TCA[$this->tableName]['columns'])){
-			foreach($TCA[$this->tableName]['columns'] as $key => $col) {
-				if(isset($col['config']['foreign_table']) && (strpos($tmpl,'###search'.$key.'###') !== false)) {
-					$mArr['###search'.$key.'###'] = $this->generateOptionsFromTable('<option value="###value###" ###selected###>###label###</option>',$col['config']['foreign_table'],$this->piVars[$key],true);
+		if (!$this->getTSFFvar('disableSearchBox')) {
+				// Search box design:
+			$mArr['###formAction###'] = $this->pi_getPageLink($GLOBALS['TSFE']->id);
+			$mArr['###searchWord###'] = $this->piVars['sword'];
+			$mArr['###submit###'] = $this->pi_getLL('pi_list_searchBox_search','Search',TRUE);
+			$mArr['###extKey###'] = $this->prefixId;
+	
+			$tmpl = $this->cObj->getSubpart($this->template,'###searchBox###');
+	
+			global $TCA;
+			if (isset($TCA[$this->tableName]['columns'])){
+				foreach($TCA[$this->tableName]['columns'] as $key => $col) {
+					if(isset($col['config']['foreign_table']) && (strpos($tmpl,'###search'.$key.'###') !== false)) {
+						$mArr['###search'.$key.'###'] = $this->generateOptionsFromTable('<option value="###value###" ###selected###>###label###</option>',$col['config']['foreign_table'],$this->piVars[$key],true);
+					}
 				}
 			}
+			$mArr['###prefixId###'] = $this->prefixId;
+			return $this->cObj->substituteMarkerArray($tmpl,$mArr);
+		} else {
+			return '';
 		}
-		$mArr['###prefixId###'] = $this->prefixId;
-		return $this->cObj->substituteMarkerArray($tmpl,$mArr);
 	}
 
 	/**
@@ -1212,8 +1228,24 @@ class x4epibase extends tslib_pibase {
 	 * @param	string		Fieldname
 	 * @return	string		Content, ready for HTML output.
 	 */
-	function getFieldHeader_sortLink($fN)	{
-		return $this->pi_linkTP_keepPIvars($this->getFieldHeader($fN),array('sort'=>$fN.':'.($this->internal['descFlag']?0:1)));
+	function getFieldHeader_sortLink($fN) {
+		$tsContent = $this->conf['FieldHeader_sortLink.'];
+		$tsType = $this->conf['FieldHeader_sortLink'];
+		if ($tsContent && $tsType) {
+			$localCObj = clone $this->cObj;
+			$localCObj->data['extKey'] = $this->extKey;
+			$localCObj->data['prefixId'] = $this->prefixId;
+			$localCObj->data['sort'] = $fN . ':' . ($this->internal['descFlag'] ? 0 : 1);
+			$localCObj->data['fieldHeader'] = $this->getFieldHeader($fN);
+			if ($this->internal['orderBy'] == $fN) {
+				$localCObj->data['orderByStatus'] = 'active';
+			} else {
+				$localCObj->data['orderByStatus'] = '';
+			}
+			return $localCObj->cObjGetSingle($tsType, $tsContent);
+		} else {
+			return $this->pi_linkTP_keepPIvars($this->getFieldHeader($fN),array('sort'=>$fN.':'.($this->internal['descFlag']?0:1)));
+		}
 	}
 
 	/**
