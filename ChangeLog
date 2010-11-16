@@ -1,3 +1,6 @@
+2010-11-16 Markus Stauffiger <markus-at-4eyes.ch>
+	* Enabled "skipHtmlEntitiesFields=all" for the text-field as well
+
 2010-08-29 Markus Stauffiger <markus-at-4eyes.ch>
     * Updated some phpdoc comments
 

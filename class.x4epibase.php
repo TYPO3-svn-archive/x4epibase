@@ -796,7 +796,7 @@ class x4epibase extends tslib_pibase {
 					return $this->pi_RTEcssText($this->internal['currentRow'][$fN]);
 				} else {
 					$out = $this->internal['currentRow'][$fN];
-					if (!in_array($fN,$this->skipHtmlEntitiesFields)) {
+					if (!in_array($fN,$this->skipHtmlEntitiesFields) && !($this->skipHtmlEntitiesFields[0]=='all')) {
 						$out = htmlentities($out);
 					}
 					return nl2br($out);
