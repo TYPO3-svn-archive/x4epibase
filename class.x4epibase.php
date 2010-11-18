@@ -850,7 +850,7 @@ class x4epibase extends tslib_pibase {
 		}
 
 		// handle utf8 encoding
-		if (in_array($fN,$this->conf['utf8DecodeFields']) || ($this->conf['utf8DecodeFields'][0]=='all')) {
+		if ((is_array($this->conf['utf8DecodeFields']) && in_array($fN,$this->conf['utf8DecodeFields'])) || ($this->conf['utf8DecodeFields'][0]=='all')) {
 			$out = utf8_decode($out);
 		}
 
