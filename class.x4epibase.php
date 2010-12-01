@@ -783,7 +783,7 @@ class x4epibase extends tslib_pibase {
 	 * @param	string		Fieldname
 	 * @return	string		Content, ready for HTML output.
 	 */
-	function getFieldContent($fN)	{
+	function getFieldContent($fN){
 		global $TCA;
 		$t = $TCA[$this->internal['currentTable']]['columns'][$fN]['config'];
 		$this->handleStdWrap($fN);
@@ -799,7 +799,7 @@ class x4epibase extends tslib_pibase {
 					if (!in_array($fN,$this->skipHtmlEntitiesFields) && !($this->skipHtmlEntitiesFields[0]=='all')) {
 						$out = htmlentities($out);
 					}
-					return nl2br($out);
+					$out = nl2br($out);
 				}
 			break;
 			case 'group':
@@ -858,7 +858,7 @@ class x4epibase extends tslib_pibase {
 			$out = htmlentities($out);
 		}
 		
-		$out = $this->handlePostStdWrap($out);
+		$out = $this->handlePostStdWrap($out,$fN);
 		
 		// check if list mode
 		if ((!isset($this->piVars['showUid']) || ($this->conf['detailView.']['enableDetailLinks']==1)) && in_array($fN,$this->conf['listView.']['detailLinkFields'])) {
@@ -874,9 +874,10 @@ class x4epibase extends tslib_pibase {
 	 * @param 	string 	$out	Field content
 	 * @return	string	Standard-wrapped field content
 	 */
-	function handlePostStdWrap($out){
+	function handlePostStdWrap($out,$fN){
 		$stdWrapConf = array();
 		$stdWrapConf = $this->conf['fields.'][$fN.'.']['post_stdWrap.'];
+		
 		return $this->cObj->stdWrap($out,$stdWrapConf);
 	}
 
@@ -1008,11 +1009,11 @@ class x4epibase extends tslib_pibase {
 	 * Notice that these two functions are typically ALWAYS defined in the extension class of the plugin since they are directly concerned with the specific layout for that plugins purpose.
 	 *
 	 * @param	pointer		Result pointer to a SQL result which can be traversed.
-	 * @param	array		Set of already fetched rows instead of a DB result pointer
+	 * @param	string		Attributes for the table tag which is wrapped around the table rows containing the list
 	 * @return	string		Output HTML, wrapped in <div>-tags with a class attribute
 	 * @see pi_list_row(), pi_list_header()
 	 */
-	function pi_list_makelist($res, $rowSet = array())	{
+	function pi_list_makelist($res)	{
 		// get all templates
 		if ($this->manualFieldOrder_list == ''){
 			$this->manualFieldOrder_list = $this->fields;
@@ -1037,7 +1038,7 @@ class x4epibase extends tslib_pibase {
 		$c=0;
 		$rows = '';
 		$simpleRows = array();
-		if ($res !== NULL) {
+		if($res !== NULL){
 			while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				if ($this->conf['listView.']['simpleList']==1) {
 					$simpleRows[] = $this->pi_list_row($c);
@@ -1056,7 +1057,7 @@ class x4epibase extends tslib_pibase {
 				}
 				$c++;
 			}
-		}
+ 		}
 		// make a simple list
 		if ($this->conf['listView.']['simpleList']==1) {
 			$rows = implode('|',$simpleRows);
@@ -1072,6 +1073,7 @@ class x4epibase extends tslib_pibase {
 	 * Displays single view of a record. It's possible to give a record,
 	 * otherwise, the function gets the one in the piVars['showUid']
 	 *
+	 * @param	array 	$element	Element to render
 	 * @return	string				HTML-View of record
 	 */
 	function singleView(){
@@ -1213,13 +1215,11 @@ class x4epibase extends tslib_pibase {
 					if(isset($col['config']['foreign_table']) && (strpos($tmpl,'###search'.$key.'###') !== false)) {
 						$mArr['###search'.$key.'###'] = $this->generateOptionsFromTable('<option value="###value###" ###selected###>###label###</option>',$col['config']['foreign_table'],$this->piVars[$key],true);
 					}
-				}
-			}
 			$mArr['###prefixId###'] = $this->prefixId;
 			return $this->cObj->substituteMarkerArray($tmpl,$mArr);
 		} else {
 			return '';
-		}
+ 		}
 	}
 
 	/**
@@ -1228,7 +1228,7 @@ class x4epibase extends tslib_pibase {
 	 * @param	string		Fieldname
 	 * @return	string		Content, ready for HTML output.
 	 */
-	function getFieldHeader_sortLink($fN) {
+	function getFieldHeader_sortLink($fN){
 		$tsContent = $this->conf['FieldHeader_sortLink.'];
 		$tsType = $this->conf['FieldHeader_sortLink'];
 		if ($tsContent && $tsType) {
@@ -1366,7 +1366,7 @@ class x4epibase extends tslib_pibase {
 			t3lib_TCEmain::clear_cacheCmd($cacheCmd);
 		}
 	}
-
+	
 	/** 
 	 * Clears cache of sites defined in page-ts-config
 	 *
@@ -1521,7 +1521,6 @@ class x4epibase extends tslib_pibase {
 		return $mArr;
 	}
 
-
 	/**
 	 * Adds validation javascript file, for front end editing features
 	 * 
@@ -1530,6 +1529,10 @@ class x4epibase extends tslib_pibase {
 	 */
     function addJSValidation($formId) {
     	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey].='
+    			<script type="text/javascript">
+    				var L = "'.$GLOBALS['TSFE']->config['config']['language'].'";
+				</script>
+				<script type="text/javascript" src="typo3conf/ext/x4epibase/js/locallang.js"></script>
 				<script type="text/javascript" src="typo3conf/ext/x4epibase/js/validation.js"></script>';
     	return '<script type="text/javascript">
      				new Validation("'.$formId.'");

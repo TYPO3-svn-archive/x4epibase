@@ -26,6 +26,8 @@
 * SOFTWARE.
 * 
 */
+
+//var L = getGETParameter("L",true);
 var Validator = Class.create();
 
 Validator.prototype = {
@@ -97,6 +99,12 @@ Validation.prototype = {
 		var result = false;
 		var useTitles = this.options.useTitles;
 		var callback = this.options.onElementValidate;
+		
+		// hack for recaptcha
+		if($('recaptcha_response_field')){
+			$('recaptcha_response_field').addClassName('validate-captcha');
+		}
+		
 		if(this.options.stopOnFirst) {
 			result = Form.getElements(this.form).all(function(elm) { return Validation.validate(elm,{useTitle : useTitles, onElementValidate : callback}); });
 		} else {
@@ -226,7 +234,7 @@ Validation.add('IsEmpty', '', function(v) {
 			});
 
 Validation.addAllThese([
-	['required', 'Dies ist ein Pflichtfeld.', function(v) {
+	['required', LLL[L].required, function(v) {
 				return !Validation.get('IsEmpty').test(v);
 			}],
 	['validate-number', 'Bitte geben sie eine g&uuml;ltige Zahl ein.', function(v) {
@@ -278,3 +286,54 @@ Validation.addAllThese([
 				});
 			}]
 ]);
+
+Validation.add('validate-captcha','Die Captcha-Eingabe war nicht korrekt.',function(v,elm){
+	
+	capChallenge = $('recaptcha_challenge_field').getValue();
+	capResponse = v;
+	url = window.location.host+window.location.pathname+'?eID=congressCaptcha&recaptcha_response_field='+encodeURI(capResponse)+'&recaptcha_challenge_field='+capChallenge;
+	
+	if(!capChallenge || !capResponse){
+		Recaptcha.reload();
+		return false;
+	}
+	
+	verified = 'validate';
+	
+	ajxReq = new Ajax.Request(url,{asynchronous: false,onComplete: function(response){
+		if(response.responseText == 0){
+			verified = false;
+		} else if(response.responseText == 1){
+			verified = true;
+		} else {
+			verified = false;
+		}
+	}});
+	
+	if(verified == 'validate'){
+		verified = false;
+	}
+	
+	if(verified == false){
+		Recaptcha.reload();
+	}
+	
+	return verified;
+	
+});
+
+function getGETParameter( name,numerical ){
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp( regexS );
+	var results = regex.exec( window.location.href );
+	if( results == null ){
+		if (numerical===true) {
+			return 0;
+		}else {
+			return "";
+		}
+	}else{
+		return results[1];
+	}
+}

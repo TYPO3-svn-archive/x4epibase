@@ -1,11 +1,17 @@
+(add new changes on top of this file)
+
 2010-11-18 Markus Stauffiger <markus-at-4eyes.ch>
 	* added is_array to utf8decode fields
 
 2010-11-16 Markus Stauffiger <markus-at-4eyes.ch>
 	* Enabled "skipHtmlEntitiesFields=all" for the text-field as well
 
+2010-11-16 Manuel Kammermann <manuel@4eyes.ch>
+	* in getFieldContent(): return nl2br($out) -> $out = nl2br($out)    [so post_stdWrap is also applied on text fields]
+	* handleStdWrap($out) -> handleStdWrap($out,$fN)  [so configuration can actually be read]
+
 2010-08-29 Markus Stauffiger <markus-at-4eyes.ch>
-    * Updated some phpdoc comments
+	* Updated some phpdoc comments
 
 2010-08-27 Markus Stauffiger <markus@4eyes.ch>
 	* Updated documentation
