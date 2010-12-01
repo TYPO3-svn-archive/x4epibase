@@ -1,5 +1,8 @@
 (add new changes on top of this file)
 
+2010-12-01 Manuel Kammermann <manuel-at-4eyes.ch>
+	* getFieldContent(): checked for empty string before permorming in_array()     (Task 8.45)
+
 2010-11-18 Markus Stauffiger <markus-at-4eyes.ch>
 	* added is_array to utf8decode fields
 

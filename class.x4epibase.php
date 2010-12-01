@@ -861,6 +861,9 @@ class x4epibase extends tslib_pibase {
 		$out = $this->handlePostStdWrap($out,$fN);
 		
 		// check if list mode
+		if(empty($this->conf['listView.']['detailLinkFields'])){
+			$this->conf['listView.']['detailLinkFields'] = '';
+		}
 		if ((!isset($this->piVars['showUid']) || ($this->conf['detailView.']['enableDetailLinks']==1)) && in_array($fN,$this->conf['listView.']['detailLinkFields'])) {
 			$out = $this->pi_linkTP_keepPIvars($out,array('showUid'=>$this->internal['currentRow']['uid']),1,0,$this->conf['listView.']['detailPageUid']);
 		}
