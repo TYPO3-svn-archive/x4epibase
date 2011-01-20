@@ -721,17 +721,22 @@ class x4epibase extends tslib_pibase {
 	 *
 	 * @param	String	$tableName		Name of the table
 	 * @param	String	$addWhere		Additional where clause
+	 * @param	String  $altOrderBy		Alternative ordering
 	 * 
 	 * @return	object	SQL result set
 	 */
-	function getListResultSet($tableName,$addWhere='') {
+	function getListResultSet($tableName,$addWhere='',$altOrderBy='') {
 		global $TCA;
 		if (isset($this->internal['orderBy'])) {
 			$conf = $TCA[$tableName]['columns'][$this->internal['orderBy']]['config'];
 			if (isset($conf['foreign_table']) && !isset($conf['MM'])) {
 				$queryParts = $this->pi_list_query($tableName,0,$addWhere,'','','','',true);
 				$queryParts['FROM'] .= ' LEFT JOIN '.$conf['foreign_table'].' ON '.$conf['foreign_table'].'.uid='.$tableName.'.'.$this->internal['orderBy'];
-				$queryParts['ORDERBY'] = $conf['foreign_table'].'.'.$TCA[$conf['foreign_table']]['ctrl']['label'].($this->internal['descFlag']?' DESC':'');
+				if(!empty($altOrderBy)){
+					$queryParts['ORDERBY'] = $conf['foreign_table'].'.'.$altOrderBy.($this->internal['descFlag']?' DESC':'');
+				}else{
+					$queryParts['ORDERBY'] = $conf['foreign_table'].'.'.$TCA[$conf['foreign_table']]['ctrl']['label'].($this->internal['descFlag']?' DESC':'');
+				}
 				return $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryParts);
 			}
 		}
@@ -1218,6 +1223,8 @@ class x4epibase extends tslib_pibase {
 					if(isset($col['config']['foreign_table']) && (strpos($tmpl,'###search'.$key.'###') !== false)) {
 						$mArr['###search'.$key.'###'] = $this->generateOptionsFromTable('<option value="###value###" ###selected###>###label###</option>',$col['config']['foreign_table'],$this->piVars[$key],true);
 					}
+				}
+			}
 			$mArr['###prefixId###'] = $this->prefixId;
 			return $this->cObj->substituteMarkerArray($tmpl,$mArr);
 		} else {
@@ -1369,7 +1376,7 @@ class x4epibase extends tslib_pibase {
 			t3lib_TCEmain::clear_cacheCmd($cacheCmd);
 		}
 	}
-	
+
 	/** 
 	 * Clears cache of sites defined in page-ts-config
 	 *
@@ -1581,12 +1588,12 @@ class x4epibase extends tslib_pibase {
 	 * @return string
 	 */
 	function websafeFilename($text) {
-		$text = str_replace('Ã¤','ae',$text);
-		$text = str_replace('Ã¶','oe',$text);
-		$text = str_replace('Ã¼','ue',$text);
-		$text = str_replace('Ã„','Ae',$text);
-		$text = str_replace('Ã–','Oe',$text);
-		$text = str_replace('Ãœ','Ue',$text);
+		$text = str_replace('Š','ae',$text);
+		$text = str_replace('š','oe',$text);
+		$text = str_replace('Ÿ','ue',$text);
+		$text = str_replace('€','Ae',$text);
+		$text = str_replace('…','Oe',$text);
+		$text = str_replace('†','Ue',$text);
 		$text = str_replace(' ','_',$text);
 
 		return preg_replace("/[^a-zA-Z0-9\-_\.]+/", "_", $text);
