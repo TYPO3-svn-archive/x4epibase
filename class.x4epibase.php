@@ -123,6 +123,12 @@ class x4epibase extends tslib_pibase {
 	 * @var array
 	 */
 	var $globalMarkerArray = array();
+	
+	/**
+	 * Used charset, determined by global config
+	 * @var string
+	 */
+	var $charset;
 
 	/**
 	 * Sets inital variables form typoscript and flexform
@@ -193,6 +199,9 @@ class x4epibase extends tslib_pibase {
 		if (!is_array($this->conf['listView.']['detailLinkFields'])) {
 			$this->conf['listView.']['detailLinkFields'] = t3lib_div::trimExplode(',',$this->conf['listView.']['detailLinkFields'],1);
 		}
+		
+		// used charset
+		$this->charset = ($GLOBALS['TSFE']->metaCharset ? $GLOBALS['TSFE']->metaCharset : 'iso-8859-1');
 	}
 
 	/**
@@ -802,7 +811,7 @@ class x4epibase extends tslib_pibase {
 				} else {
 					$out = $this->internal['currentRow'][$fN];
 					if (!in_array($fN,$this->skipHtmlEntitiesFields) && !($this->skipHtmlEntitiesFields[0]=='all')) {
-						$out = htmlentities($out);
+						$out = htmlentities($out,ENT_COMPAT,$this->charset);
 					}
 					$out = nl2br($out);
 				}
@@ -860,7 +869,7 @@ class x4epibase extends tslib_pibase {
 		}
 
 		if (!in_array($fN,$this->skipHtmlEntitiesFields) && !($this->skipHtmlEntitiesFields[0]=='all')) {
-			$out = htmlentities($out);
+			$out = htmlentities($out,ENT_COMPAT,$this->charset);
 		}
 		
 		$out = $this->handlePostStdWrap($out,$fN);
@@ -927,13 +936,13 @@ class x4epibase extends tslib_pibase {
 				$this->internal['currentRow'][$fN.'Original'] = $this->internal['currentRow'][$fN];
 				$this->internal['currentRow'][$fN] = '';
 			}
-			$out = $this->cObj->getTypoLink(htmlentities($this->internal['currentRow'][$fN]),$this->internal['currentRow'][$fN.'Original']);
+			$out = $this->cObj->getTypoLink(htmlentities($this->internal['currentRow'][$fN],ENT_COMPAT,$this->charset),$this->internal['currentRow'][$fN.'Original']);
 			array_push($this->skipHtmlEntitiesFields,$fN);
 		} else {
 			$out = $this->internal['currentRow'][$fN];
 		}
 		if($fN == 'email'){
-			$out = $this->cObj->typoLink(htmlentities($this->internal['currentRow'][$fN]),array('parameter'=>$this->internal['currentRow'][$fN]));
+			$out = $this->cObj->typoLink(htmlentities($this->internal['currentRow'][$fN],ENT_COMPAT,$this->charset),array('parameter'=>$this->internal['currentRow'][$fN]));
 			array_push($this->skipHtmlEntitiesFields,$fN);
 		}
 		return $out;
