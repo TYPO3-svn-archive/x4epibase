@@ -739,7 +739,7 @@ class x4epibase extends tslib_pibase {
 		if (isset($this->internal['orderBy'])) {
 			$conf = $TCA[$tableName]['columns'][$this->internal['orderBy']]['config'];
 			if (isset($conf['foreign_table']) && !isset($conf['MM'])) {
-				$queryParts = $this->pi_list_query($tableName,0,$addWhere,'','','','',true);
+				$queryParts = $this->pi_exec_query($tableName,0,$addWhere,'','','','',true);
 				$queryParts['FROM'] .= ' LEFT JOIN '.$conf['foreign_table'].' ON '.$conf['foreign_table'].'.uid='.$tableName.'.'.$this->internal['orderBy'];
 				if(!empty($altOrderBy)){
 					$queryParts['ORDERBY'] = $conf['foreign_table'].'.'.$altOrderBy.($this->internal['descFlag']?' DESC':'');
@@ -1597,12 +1597,12 @@ class x4epibase extends tslib_pibase {
 	 * @return string
 	 */
 	function websafeFilename($text) {
-		$text = str_replace('Š','ae',$text);
-		$text = str_replace('š','oe',$text);
-		$text = str_replace('Ÿ','ue',$text);
-		$text = str_replace('€','Ae',$text);
-		$text = str_replace('…','Oe',$text);
-		$text = str_replace('†','Ue',$text);
+		$text = str_replace('ï¿½','ae',$text);
+		$text = str_replace('ï¿½','oe',$text);
+		$text = str_replace('ï¿½','ue',$text);
+		$text = str_replace('ï¿½','Ae',$text);
+		$text = str_replace('ï¿½','Oe',$text);
+		$text = str_replace('ï¿½','Ue',$text);
 		$text = str_replace(' ','_',$text);
 
 		return preg_replace("/[^a-zA-Z0-9\-_\.]+/", "_", $text);
@@ -1715,7 +1715,99 @@ class x4epibase extends tslib_pibase {
 
 		return $returnQueryArray ? $queryParts : $query;
 	}
+	
+	/**
+	 * Executes a standard SELECT query for listing of records based on standard input vars from the 'browser' ($this->internal['results_at_a_time'] and $this->piVars['pointer']) and 'searchbox' ($this->piVars['sword'] and $this->internal['searchFieldList'])
+	 * Set $count to 1 if you wish to get a count(*) query for selecting the number of results.
+	 * Notice that the query will use $this->conf['pidList'] and $this->conf['recursive'] to generate a PID list within which to search for records.
+	 *
+	 * @param	string		The table name to make the query for.
+	 * @param	boolean		If set, you will get a "count(*)" query back instead of field selecting
+	 * @param	string		Additional WHERE clauses (should be starting with " AND ....")
+	 * @param	mixed		If an array, then it must contain the keys "table", "mmtable" and (optionally) "catUidList" defining a table to make a MM-relation to in the query (based on fields uid_local and uid_foreign). If not array, the query will be a plain query looking up data in only one table.
+	 * @param	string		If set, this is added as a " GROUP BY ...." part of the query.
+	 * @param	string		If set, this is added as a " ORDER BY ...." part of the query. The default is that an ORDER BY clause is made based on $this->internal['orderBy'] and $this->internal['descFlag'] where the orderBy field must be found in $this->internal['orderByList']
+	 * @param	string		If set, this is taken as the first part of the query instead of what is created internally. Basically this should be a query starting with "FROM [table] WHERE ... AND ...". The $addWhere clauses and all the other stuff is still added. Only the tables and PID selecting clauses are bypassed. May be deprecated in the future!
+	 * @param	boolean		If set, the function will return the query not as a string but array with the various parts.
+	 * @return	pointer		SQL result pointer
+	 */
+	function pi_exec_query($table, $count=0 ,$addWhere='' ,$mm_cat='' ,$groupBy='' ,$orderBy='', $query='', $returnQueryArray=FALSE) {
+        // Begin Query:
+		
+		if (isset($this->conf['includeHiddenRecords'])) {
+			$hidden = $this->conf['includeHiddenRecords'];
+		} else {
+			$hidden = 0;
+		}
+		
+		if (!$query) {
+				// Fetches the list of PIDs to select from.
+				// TypoScript property .pidList is a comma list of pids. If blank, current page id is used.
+				// TypoScript property .recursive is a int+ which determines how many levels down from the pids in the pid-list subpages should be included in the select.
+			$pidList = $this->pi_getPidList($this->conf['pidList'], $this->conf['recursive']);
+			if (is_array($mm_cat)) {
+				$query = 'FROM ' . $table . ',' . $mm_cat['table'] . ',' . $mm_cat['mmtable'] . LF .
+						' WHERE ' . $table . '.uid=' . $mm_cat['mmtable'] . '.uid_local AND ' . $mm_cat['table'] . '.uid=' . $mm_cat['mmtable'] . '.uid_foreign ' . LF .
+						(strcmp($mm_cat['catUidList'],'') ? ' AND ' . $mm_cat['table'] . '.uid IN (' . $mm_cat['catUidList'] . ')' : '') . LF .
+						' AND ' . $table . '.pid IN (' . $pidList . ')' . LF .
+						$this->cObj->enableFields($table,$hidden) . LF;	// This adds WHERE-clauses that ensures deleted, hidden, starttime/endtime/access records are NOT selected, if they should not! Almost ALWAYS add this to your queries!
+			} else {
+				$query='FROM ' . $table . ' WHERE pid IN (' . $pidList . ')' . LF .
+						$this->cObj->enableFields($table,$hidden) . LF;	// This adds WHERE-clauses that ensures deleted, hidden, starttime/endtime/access records are NOT selected, if they should not! Almost ALWAYS add this to your queries!
+			}
+		}
 
+			// Split the "FROM ... WHERE" string so we get the WHERE part and TABLE names separated...:
+		list($TABLENAMES, $WHERE) = preg_split('/WHERE/i', trim($query), 2);
+		$TABLENAMES = trim(substr(trim($TABLENAMES), 5));
+		$WHERE = trim($WHERE);
+
+			// Add '$addWhere'
+		if ($addWhere) {
+			$WHERE .= ' ' . $addWhere . LF;
+		}
+
+			// Search word:
+		if ($this->piVars['sword'] && $this->internal['searchFieldList']) {
+			$WHERE .= $this->cObj->searchWhere($this->piVars['sword'], $this->internal['searchFieldList'], $table) . LF;
+		}
+
+		if ($count) {
+			$queryParts = array(
+				'SELECT' => 'count(*)',
+				'FROM' => $TABLENAMES,
+				'WHERE' => $WHERE,
+				'GROUPBY' => '',
+				'ORDERBY' => '',
+				'LIMIT' => ''
+			);
+		} else {
+				// Order by data:
+			if (!$orderBy && $this->internal['orderBy']) {
+				if (t3lib_div::inList($this->internal['orderByList'], $this->internal['orderBy'])) {
+					$orderBy = 'ORDER BY ' . $table . '.' . $this->internal['orderBy'] . ($this->internal['descFlag'] ? ' DESC' : '');
+				}
+			}
+
+				// Limit data:
+			$pointer = $this->piVars['pointer'];
+			$pointer = intval($pointer);
+			$results_at_a_time = t3lib_div::intInRange($this->internal['results_at_a_time'], 1, 1000);
+			$LIMIT = ($pointer * $results_at_a_time) . ',' . $results_at_a_time;
+
+				// Add 'SELECT'
+			$queryParts = array(
+				'SELECT' => $this->pi_prependFieldsWithTable($table, $this->pi_listFields),
+				'FROM' => $TABLENAMES,
+				'WHERE' => $WHERE,
+				'GROUPBY' => $GLOBALS['TYPO3_DB']->stripGroupBy($groupBy),
+				'ORDERBY' => $GLOBALS['TYPO3_DB']->stripOrderBy($orderBy),
+				'LIMIT' => $LIMIT
+			);
+		}
+		return $returnQueryArray ? $queryParts : $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryParts);
+	}
+	
 	/**
 	 * Generates a search where clause based on the input search words (AND operation - all search words must be found in record.)
 	 * Example: The $sw is "content management, system" (from an input form) and the $searchFieldList is "bodytext,header" then the output will be ' AND (bodytext LIKE "%content%" OR header LIKE "%content%") AND (bodytext LIKE "%management%" OR header LIKE "%management%") AND (bodytext LIKE "%system%" OR header LIKE "%system%")'
